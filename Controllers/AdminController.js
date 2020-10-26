@@ -2,7 +2,7 @@ const constants = require('../config/contants')
 const DAO       = require('../DAO/UsersDAO')
 const sha256    = require('sha256')
 const { validUserRegister } = require('../Helpers/ValidationHelper')
-
+//teste
 class AdminController {
   
     /*  Add Admin User
