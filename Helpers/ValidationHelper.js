@@ -166,15 +166,6 @@ class ValidationHelper {
     }
 
     /**
-     * Validador de rua
-     * @param {*} name 
-     * @return Boolean
-     */
-    static validStreet(street) {
-        return (!!street && street.length > 0 && street.length <= 50)
-    }
-
-    /**
      * Validador de cep
      * @param {*} cep 
      * @return Boolean
@@ -294,7 +285,7 @@ class ValidationHelper {
      * @return Boolean
      */
     static validGoal(goal) {
-        return (!!goal && goal.length >= 0 && goal.length <= 100)
+        return (!!goal && goal.length <= 100)
     }
 
     /** 
@@ -303,7 +294,7 @@ class ValidationHelper {
      * @return Boolean
      */
     static validPhone(phone) {
-        return (!!phone && phone.length >= 0 && phone.length <= 20)
+        return (!!phone && phone.length <= 20)
     }
 
     /** 
@@ -312,7 +303,7 @@ class ValidationHelper {
      * @return Boolean
      */
     static validRestrictions(restrictions) {
-        return (!!restrictions && restrictions.length >= 0 && restrictions.length <= 100)
+        return (!!restrictions && restrictions.length <= 100)
     }
 
     /** 
@@ -330,7 +321,7 @@ class ValidationHelper {
      * @return Boolean
      */
     static validOutros(outros) {
-        return !outros || (!!outros && outros.length >= 0 && outros.length <= 200)
+        return !outros || (!!outros && outros.length <= 200)
     }
 
     /**
