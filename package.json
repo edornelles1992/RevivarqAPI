@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node app.js"
+    "start": "nodemon app.js"
   },
   "dependencies": {
     "body-parser": "^1.19.0",
@@ -29,9 +29,10 @@
     "nodemailer": "^6.3.0",
     "path": "^0.12.7",
     "restify": "^7.1.0",
-    "sha256": "^0.2.0"
+    "sha256": "^0.2.0",
+    "ws": "^7.4.0"
   },
   "devDependencies": {
-    "nodemon": "^1.19.3"
+    "nodemon": "^2.0.6"
   }
 }

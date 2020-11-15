@@ -1,7 +1,7 @@
-const models     = require("./models")
-const express    = require('express')
+const models = require("./models")
+const express = require('express')
 const bodyParser = require('body-parser')
-const cors       = require('cors')
+const cors = require('cors')
 
 const loginRouter = require('./routes/login')
 const usersRouter = require('./routes/users')
@@ -24,6 +24,22 @@ var config = require('./config/config')
 setupServer()
 
 function setupServer() {
+
+    const WebSocket = require('ws');
+
+    const wss = new WebSocket.Server({ port: 3030 });
+    wss.on('connection', function connection(ws) {
+        console.log('connected: ' + ws["userID"] + ' in ' + Object.getOwnPropertyNames(ws)) 
+        ws.on('message', function incoming(data) {
+            wss.clients.forEach(function each(client) {
+                console.log("client",client)
+                if (client !== ws && client.readyState === WebSocket.OPEN) {
+                    client.send(data);
+                }
+            });
+        });
+    })
+
     const app = express()
 
     app.use(cors())
@@ -36,7 +52,7 @@ function setupServer() {
     app.use('/api/InstaGaleria', instaGaleriaRouter)
     app.use('/api/recover', recoveryRouter)
     app.use('/api/photos', photosRouter)
-    
+
     app.listen(config.app.port, function () {
         console.log(`Server listening on port ${config.app.port}`)
     })
