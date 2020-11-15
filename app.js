@@ -20,6 +20,7 @@ var config = require('./config/config')
 // models.sequelize.sync().then(function() {
 //     setupServer()
 // }) 
+let connections = 0;
 
 setupServer()
 
@@ -28,16 +29,23 @@ function setupServer() {
     const WebSocket = require('ws');
 
     const wss = new WebSocket.Server({ port: 3030 });
-    wss.on('connection', function connection(ws) {
-        console.log('connected: ' + ws["userID"] + ' in ' + Object.getOwnPropertyNames(ws)) 
-        ws.on('message', function incoming(data) {
+
+    var socket = [];
+    wss.on('connection', function connection(ws, req) {
+        if (connections == 2){
+
+        } else {
+        connections++;
+        ws.on('message', function incoming(data) {  
             wss.clients.forEach(function each(client) {
-                console.log("client",client)
                 if (client !== ws && client.readyState === WebSocket.OPEN) {
+                    console.log(client)
                     client.send(data);
                 }
             });
         });
+        socket.push(ws);
+    }
     })
 
     const app = express()
