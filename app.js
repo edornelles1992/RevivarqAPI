@@ -11,6 +11,7 @@ const reformRouter = require('./routes/reform')
 const recoveryRouter = require('./routes/recover')
 const instaGaleriaRouter = require('./routes/instaGallery')
 const photosRouter = require('./routes/photos')
+const iniciaChat = require('./Controllers/ChatController')
 
 
 const TokenManager = require('./Helpers/AuthManager')
@@ -21,65 +22,11 @@ var config = require('./config/config')
 //     setupServer()
 // }) 
 
-function noop() {}
- 
-function heartbeat() {
-  this.isAlive = true;
-}
-
 setupServer()
 
 function setupServer() {
 
-    const WebSocket = require('ws');
-
-    const wss = new WebSocket.Server({ port: 3030 });
-    var sockets = [];
-
-    wss.on('connection', function connection(ws) {     
-
-        if (sockets.length < 2){
-            if (sockets.filter(sckt => sckt == ws).length === 0){
-                sockets.push(ws)
-            }
-
-            wss.on('close', function close() {
-            console.log("ENTROUUU")
-            sockets = sockets.filter(sck => sck !== ws)
-            console.log("NUMERO DE SOCKETS: ", sockets.length)
-          });
-
-            ws.on('message', function incoming(data) {  
-                let sendingObject = JSON.parse(data.toString())
-                if (sendingObject.status === "FECHAR"){
-                    wss.clients.forEach(function each(client) {
-                        if (client === ws && client.readyState === WebSocket.OPEN) {
-                            sockets = sockets.filter(sck => sck !== ws)
-                            console.log("NUMERO DE SOCKETS: ", sockets.length)
-                            client.close()
-                        }
-                    }); 
-                } else {
-                        wss.clients.forEach(function each(client) {
-                            if (client !== ws && client.readyState === WebSocket.OPEN) {
-                                sendingObject = {...sendingObject, status: "ATIVO"}
-                                client.send(JSON.stringify(sendingObject));
-                            }
-                        }); 
-                    }
-         });
-        } else {
-            wss.clients.forEach(function each(client) {
-                if (client === ws && client.readyState === WebSocket.OPEN) {
-                    sockets = sockets.filter(sck => sck !== ws)
-                    console.log("NUMERO DE SOCKETS: ", sockets.length)
-                    client.close()
-                }
-            }); 
-        }
-
-        console.log("NUMERO DE SOCKETS: ", sockets.length)    
-    })
+    iniciaChat()
 
     const app = express()
 
