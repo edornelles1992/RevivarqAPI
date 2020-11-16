@@ -20,7 +20,12 @@ var config = require('./config/config')
 // models.sequelize.sync().then(function() {
 //     setupServer()
 // }) 
-let connections = 0;
+
+function noop() {}
+ 
+function heartbeat() {
+  this.isAlive = true;
+}
 
 setupServer()
 
@@ -29,23 +34,51 @@ function setupServer() {
     const WebSocket = require('ws');
 
     const wss = new WebSocket.Server({ port: 3030 });
+    var sockets = [];
 
-    var socket = [];
-    wss.on('connection', function connection(ws, req) {
-        if (connections == 2){
+    wss.on('connection', function connection(ws) {     
 
+        if (sockets.length < 2){
+            if (sockets.filter(sckt => sckt == ws).length === 0){
+                sockets.push(ws)
+            }
+
+            wss.on('close', function close() {
+            console.log("ENTROUUU")
+            sockets = sockets.filter(sck => sck !== ws)
+            console.log("NUMERO DE SOCKETS: ", sockets.length)
+          });
+
+            ws.on('message', function incoming(data) {  
+                let sendingObject = JSON.parse(data.toString())
+                if (sendingObject.status === "FECHAR"){
+                    wss.clients.forEach(function each(client) {
+                        if (client === ws && client.readyState === WebSocket.OPEN) {
+                            sockets = sockets.filter(sck => sck !== ws)
+                            console.log("NUMERO DE SOCKETS: ", sockets.length)
+                            client.close()
+                        }
+                    }); 
+                } else {
+                        wss.clients.forEach(function each(client) {
+                            if (client !== ws && client.readyState === WebSocket.OPEN) {
+                                sendingObject = {...sendingObject, status: "ATIVO"}
+                                client.send(JSON.stringify(sendingObject));
+                            }
+                        }); 
+                    }
+         });
         } else {
-        connections++;
-        ws.on('message', function incoming(data) {  
             wss.clients.forEach(function each(client) {
-                if (client !== ws && client.readyState === WebSocket.OPEN) {
-                    console.log(client)
-                    client.send(data);
+                if (client === ws && client.readyState === WebSocket.OPEN) {
+                    sockets = sockets.filter(sck => sck !== ws)
+                    console.log("NUMERO DE SOCKETS: ", sockets.length)
+                    client.close()
                 }
-            });
-        });
-        socket.push(ws);
-    }
+            }); 
+        }
+
+        console.log("NUMERO DE SOCKETS: ", sockets.length)    
     })
 
     const app = express()
@@ -60,7 +93,7 @@ function setupServer() {
     app.use('/api/InstaGaleria', instaGaleriaRouter)
     app.use('/api/recover', recoveryRouter)
     app.use('/api/photos', photosRouter)
-
+    app.maxConnections = 2
     app.listen(config.app.port, function () {
         console.log(`Server listening on port ${config.app.port}`)
     })
